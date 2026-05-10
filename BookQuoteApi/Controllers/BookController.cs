@@ -18,6 +18,13 @@ namespace BookQuoteApi.Controllers
         [HttpPost]
         public IActionResult AddBook(Book book)
         {
+            if (string.IsNullOrWhiteSpace(book.Title))
+            {
+                return BadRequest("Title is required.");
+            }
+
+            book.Id = books.Count + 1;
+
             books.Add(book);
 
             return Ok(book);
