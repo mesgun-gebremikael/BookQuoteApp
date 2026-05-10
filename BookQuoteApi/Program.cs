@@ -15,6 +15,7 @@ namespace BookQuoteApi
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen();
             builder.Services.AddSingleton<BookService>();
+            builder.Services.AddSingleton<QuoteService>();
 
             var app = builder.Build();
 

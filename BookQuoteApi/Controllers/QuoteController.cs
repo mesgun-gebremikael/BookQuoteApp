@@ -1,4 +1,5 @@
 ﻿using BookQuoteApi.Models;
+using BookQuoteApi.Services;
 using Microsoft.AspNetCore.Mvc;
 
 namespace BookQuoteApi.Controllers
@@ -7,12 +8,32 @@ namespace BookQuoteApi.Controllers
     [Route("api/[controller]")]
     public class QuoteController : ControllerBase
     {
-        private static List<Quote> quotes = new List<Quote>();
+        private readonly QuoteService _quoteService;
+
+        public QuoteController(QuoteService quoteService)
+        {
+            _quoteService = quoteService;
+        }
 
         [HttpGet]
         public IActionResult GetAllQuotes()
         {
+            var quotes = _quoteService.GetAll();
+
             return Ok(quotes);
+        }
+
+        [HttpGet("{id}")]
+        public IActionResult GetQuoteById(int id)
+        {
+            var quote = _quoteService.GetById(id);
+
+            if (quote == null)
+            {
+                return NotFound("Quote not found.");
+            }
+
+            return Ok(quote);
         }
 
         [HttpPost]
@@ -23,58 +44,38 @@ namespace BookQuoteApi.Controllers
                 return BadRequest("Quote text is required.");
             }
 
-            quote.Id = quotes.Count + 1;
+            var createdQuote = _quoteService.Add(quote);
 
-            quotes.Add(quote);
-
-            return Ok(quote);
-        }
-
-        [HttpGet("{id}")]
-        public IActionResult GetQuoteById(int id)
-        {
-            var quote = quotes.FirstOrDefault(q => q.Id == id);
-
-            if (quote == null)
-            {
-                return NotFound("Quote not found.");
-            }
-
-            return Ok(quote);
+            return Ok(createdQuote);
         }
 
         [HttpPut("{id}")]
         public IActionResult UpdateQuote(int id, Quote updatedQuote)
         {
-            var quote = quotes.FirstOrDefault(q => q.Id == id);
-
-            if (quote == null)
-            {
-                return NotFound("Quote not found.");
-            }
-
             if (string.IsNullOrWhiteSpace(updatedQuote.Text))
             {
                 return BadRequest("Quote text is required.");
             }
 
-            quote.Text = updatedQuote.Text;
-            quote.Author = updatedQuote.Author;
+            var updated = _quoteService.Update(id, updatedQuote);
 
-            return Ok(quote);
+            if (!updated)
+            {
+                return NotFound("Quote not found.");
+            }
+
+            return Ok(updatedQuote);
         }
 
         [HttpDelete("{id}")]
         public IActionResult DeleteQuote(int id)
         {
-            var quote = quotes.FirstOrDefault(q => q.Id == id);
+            var deleted = _quoteService.Delete(id);
 
-            if (quote == null)
+            if (!deleted)
             {
                 return NotFound("Quote not found.");
             }
-
-            quotes.Remove(quote);
 
             return Ok("Quote deleted.");
         }
