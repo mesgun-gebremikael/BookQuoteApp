@@ -1,4 +1,5 @@
 ﻿using BookQuoteApi.Models;
+using BookQuoteApi.Services;
 using Microsoft.AspNetCore.Mvc;
 
 namespace BookQuoteApi.Controllers
@@ -7,12 +8,32 @@ namespace BookQuoteApi.Controllers
     [Route("api/[controller]")]
     public class BookController : ControllerBase
     {
-        private static List<Book> books = new List<Book>();
+        private readonly BookService _bookService;
+
+        public BookController(BookService bookService)
+        {
+            _bookService = bookService;
+        }
 
         [HttpGet]
         public IActionResult GetAllBooks()
         {
+            var books = _bookService.GetAll();
+
             return Ok(books);
+        }
+
+        [HttpGet("{id}")]
+        public IActionResult GetBookById(int id)
+        {
+            var book = _bookService.GetById(id);
+
+            if (book == null)
+            {
+                return NotFound("Book not found.");
+            }
+
+            return Ok(book);
         }
 
         [HttpPost]
@@ -23,58 +44,38 @@ namespace BookQuoteApi.Controllers
                 return BadRequest("Title is required.");
             }
 
-            book.Id = books.Count + 1;
+            var createdBook = _bookService.Add(book);
 
-            books.Add(book);
-
-            return Ok(book);
-        }
-        [HttpGet("{id}")]
-        public IActionResult GetBookById(int id)
-        {
-            var book = books.FirstOrDefault(b => b.Id == id);
-
-            if (book == null)
-            {
-                return NotFound("Book not found.");
-            }
-
-            return Ok(book);
+            return Ok(createdBook);
         }
 
         [HttpPut("{id}")]
         public IActionResult UpdateBook(int id, Book updatedBook)
         {
-            var book = books.FirstOrDefault(b => b.Id == id);
-
-            if (book == null)
-            {
-                return NotFound("Book not found.");
-            }
-
             if (string.IsNullOrWhiteSpace(updatedBook.Title))
             {
                 return BadRequest("Title is required.");
             }
 
-            book.Title = updatedBook.Title;
-            book.Author = updatedBook.Author;
-            book.PublishedDate = updatedBook.PublishedDate;
+            var updated = _bookService.Update(id, updatedBook);
 
-            return Ok(book);
+            if (!updated)
+            {
+                return NotFound("Book not found.");
+            }
+
+            return Ok(updatedBook);
         }
 
         [HttpDelete("{id}")]
         public IActionResult DeleteBook(int id)
         {
-            var book = books.FirstOrDefault(b => b.Id == id);
+            var deleted = _bookService.Delete(id);
 
-            if (book == null)
+            if (!deleted)
             {
                 return NotFound("Book not found.");
             }
-
-            books.Remove(book);
 
             return Ok("Book deleted.");
         }
