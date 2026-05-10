@@ -29,5 +29,54 @@ namespace BookQuoteApi.Controllers
 
             return Ok(book);
         }
+        [HttpGet("{id}")]
+        public IActionResult GetBookById(int id)
+        {
+            var book = books.FirstOrDefault(b => b.Id == id);
+
+            if (book == null)
+            {
+                return NotFound("Book not found.");
+            }
+
+            return Ok(book);
+        }
+
+        [HttpPut("{id}")]
+        public IActionResult UpdateBook(int id, Book updatedBook)
+        {
+            var book = books.FirstOrDefault(b => b.Id == id);
+
+            if (book == null)
+            {
+                return NotFound("Book not found.");
+            }
+
+            if (string.IsNullOrWhiteSpace(updatedBook.Title))
+            {
+                return BadRequest("Title is required.");
+            }
+
+            book.Title = updatedBook.Title;
+            book.Author = updatedBook.Author;
+            book.PublishedDate = updatedBook.PublishedDate;
+
+            return Ok(book);
+        }
+
+        [HttpDelete("{id}")]
+        public IActionResult DeleteBook(int id)
+        {
+            var book = books.FirstOrDefault(b => b.Id == id);
+
+            if (book == null)
+            {
+                return NotFound("Book not found.");
+            }
+
+            books.Remove(book);
+
+            return Ok("Book deleted.");
+        }
     }
 }
