@@ -1,10 +1,12 @@
 ﻿using BookQuoteApi.Models;
 using BookQuoteApi.Services;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Authorization;
 
 namespace BookQuoteApi.Controllers
 {
     [ApiController]
+    [Authorize]
     [Route("api/[controller]")]
     public class QuoteController : ControllerBase
     {

@@ -1,5 +1,8 @@
 using BookQuoteApi.Services;
 using BookQuoteApi.Services;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.IdentityModel.Tokens;
+using System.Text;
 
 
 namespace BookQuoteApi
@@ -21,7 +24,28 @@ namespace BookQuoteApi
             builder.Services.AddSingleton<QuoteService>();
             builder.Services.AddSingleton<AuthService>();
 
+            var jwtKey = "ThisIsASecretKeyForJwtToken12345";
+
+            builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+                .AddJwtBearer(options =>
+                {
+                    options.TokenValidationParameters = new TokenValidationParameters
+                    {
+                        ValidateIssuer = false,
+                        ValidateAudience = false,
+                        ValidateLifetime = true,
+                        ValidateIssuerSigningKey = true,
+                        IssuerSigningKey = new SymmetricSecurityKey(
+                            Encoding.UTF8.GetBytes(jwtKey))
+                    };
+                });
+
+            builder.Services.AddAuthorization();
+
             var app = builder.Build();
+
+            app.UseAuthorization();
+            app.UseAuthentication();
 
             // Configure the HTTP request pipeline.
             if (app.Environment.IsDevelopment())
