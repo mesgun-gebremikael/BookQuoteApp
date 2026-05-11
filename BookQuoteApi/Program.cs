@@ -1,12 +1,11 @@
 using BookQuoteApi.Services;
-using BookQuoteApi.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Tokens;
+using Microsoft.OpenApi.Models;
 using System.Text;
 
-
 namespace BookQuoteApi
-
 {
     public class Program
     {
@@ -14,17 +13,42 @@ namespace BookQuoteApi
         {
             var builder = WebApplication.CreateBuilder(args);
 
-            // Add services to the container.
+            var jwtKey = "ThisIsASecretKeyForJwtToken12345";
 
             builder.Services.AddControllers();
-            // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
             builder.Services.AddEndpointsApiExplorer();
-            builder.Services.AddSwaggerGen();
+
+            builder.Services.AddSwaggerGen(options =>
+            {
+                options.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
+                {
+                    Name = "Authorization",
+                    Type = SecuritySchemeType.Http,
+                    Scheme = "Bearer",
+                    BearerFormat = "JWT",
+                    In = ParameterLocation.Header,
+                    Description = "Enter your JWT token here."
+                });
+
+                options.AddSecurityRequirement(new OpenApiSecurityRequirement
+    {
+        {
+            new OpenApiSecurityScheme
+            {
+                Reference = new OpenApiReference
+                {
+                    Type = ReferenceType.SecurityScheme,
+                    Id = "Bearer"
+                }
+            },
+            new string[] {}
+        }
+    });
+            });
+
             builder.Services.AddSingleton<BookService>();
             builder.Services.AddSingleton<QuoteService>();
             builder.Services.AddSingleton<AuthService>();
-
-            var jwtKey = "ThisIsASecretKeyForJwtToken12345";
 
             builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
                 .AddJwtBearer(options =>
@@ -44,24 +68,20 @@ namespace BookQuoteApi
 
             var app = builder.Build();
 
-            app.UseAuthorization();
-            app.UseAuthentication();
-
-            // Configure the HTTP request pipeline.
             if (app.Environment.IsDevelopment())
             {
                 app.UseSwagger();
                 app.UseSwaggerUI();
             }
 
-            //app.UseHttpsRedirection();
+            // app.UseHttpsRedirection();
 
+            app.UseAuthentication();
             app.UseAuthorization();
-
 
             app.MapControllers();
 
-            app.Run();
+             app.Run();
         }
     }
 }
