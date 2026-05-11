@@ -1,4 +1,7 @@
 using BookQuoteApi.Services;
+using BookQuoteApi.Services;
+
+
 namespace BookQuoteApi
 
 {
@@ -16,6 +19,7 @@ namespace BookQuoteApi
             builder.Services.AddSwaggerGen();
             builder.Services.AddSingleton<BookService>();
             builder.Services.AddSingleton<QuoteService>();
+            builder.Services.AddSingleton<AuthService>();
 
             var app = builder.Build();
 
