@@ -1,7 +1,8 @@
-﻿using BookQuoteApi.Models;
+﻿using BookQuoteApi.Dtos;
+using BookQuoteApi.Models;
 using BookQuoteApi.Services;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 
 namespace BookQuoteApi.Controllers
 {
@@ -20,9 +21,7 @@ namespace BookQuoteApi.Controllers
         [HttpGet]
         public IActionResult GetAllBooks()
         {
-            var books = _bookService.GetAll();
-
-            return Ok(books);
+            return Ok(_bookService.GetAll());
         }
 
         [HttpGet("{id}")]
@@ -39,12 +38,19 @@ namespace BookQuoteApi.Controllers
         }
 
         [HttpPost]
-        public IActionResult AddBook(Book book)
+        public IActionResult AddBook(BookDto dto)
         {
-            if (string.IsNullOrWhiteSpace(book.Title))
+            if (string.IsNullOrWhiteSpace(dto.Title))
             {
                 return BadRequest("Title is required.");
             }
+
+            var book = new Book
+            {
+                Title = dto.Title,
+                Author = dto.Author,
+                PublishedDate = dto.PublishedDate
+            };
 
             var createdBook = _bookService.Add(book);
 
@@ -52,12 +58,19 @@ namespace BookQuoteApi.Controllers
         }
 
         [HttpPut("{id}")]
-        public IActionResult UpdateBook(int id, Book updatedBook)
+        public IActionResult UpdateBook(int id, BookDto dto)
         {
-            if (string.IsNullOrWhiteSpace(updatedBook.Title))
+            if (string.IsNullOrWhiteSpace(dto.Title))
             {
                 return BadRequest("Title is required.");
             }
+
+            var updatedBook = new Book
+            {
+                Title = dto.Title,
+                Author = dto.Author,
+                PublishedDate = dto.PublishedDate
+            };
 
             var updated = _bookService.Update(id, updatedBook);
 
@@ -66,7 +79,7 @@ namespace BookQuoteApi.Controllers
                 return NotFound("Book not found.");
             }
 
-            return Ok(updatedBook);
+            return Ok(_bookService.GetById(id));
         }
 
         [HttpDelete("{id}")]

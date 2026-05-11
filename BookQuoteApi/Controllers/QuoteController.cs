@@ -1,7 +1,8 @@
-﻿using BookQuoteApi.Models;
+﻿using BookQuoteApi.Dtos;
+using BookQuoteApi.Models;
 using BookQuoteApi.Services;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 
 namespace BookQuoteApi.Controllers
 {
@@ -20,9 +21,7 @@ namespace BookQuoteApi.Controllers
         [HttpGet]
         public IActionResult GetAllQuotes()
         {
-            var quotes = _quoteService.GetAll();
-
-            return Ok(quotes);
+            return Ok(_quoteService.GetAll());
         }
 
         [HttpGet("{id}")]
@@ -39,12 +38,18 @@ namespace BookQuoteApi.Controllers
         }
 
         [HttpPost]
-        public IActionResult AddQuote(Quote quote)
+        public IActionResult AddQuote(QuoteDto dto)
         {
-            if (string.IsNullOrWhiteSpace(quote.Text))
+            if (string.IsNullOrWhiteSpace(dto.Text))
             {
                 return BadRequest("Quote text is required.");
             }
+
+            var quote = new Quote
+            {
+                Text = dto.Text,
+                Author = dto.Author
+            };
 
             var createdQuote = _quoteService.Add(quote);
 
@@ -52,12 +57,18 @@ namespace BookQuoteApi.Controllers
         }
 
         [HttpPut("{id}")]
-        public IActionResult UpdateQuote(int id, Quote updatedQuote)
+        public IActionResult UpdateQuote(int id, QuoteDto dto)
         {
-            if (string.IsNullOrWhiteSpace(updatedQuote.Text))
+            if (string.IsNullOrWhiteSpace(dto.Text))
             {
                 return BadRequest("Quote text is required.");
             }
+
+            var updatedQuote = new Quote
+            {
+                Text = dto.Text,
+                Author = dto.Author
+            };
 
             var updated = _quoteService.Update(id, updatedQuote);
 
@@ -66,7 +77,7 @@ namespace BookQuoteApi.Controllers
                 return NotFound("Quote not found.");
             }
 
-            return Ok(updatedQuote);
+            return Ok(_quoteService.GetById(id));
         }
 
         [HttpDelete("{id}")]
