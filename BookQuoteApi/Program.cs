@@ -65,6 +65,15 @@ namespace BookQuoteApi
                 });
 
             builder.Services.AddAuthorization();
+            builder.Services.AddCors(options =>
+            {
+                options.AddPolicy("AllowAngularApp", policy =>
+                {
+                    policy.WithOrigins("http://localhost:4200")
+                          .AllowAnyHeader()
+                          .AllowAnyMethod();
+                });
+            });
 
             var app = builder.Build();
 
@@ -72,6 +81,7 @@ namespace BookQuoteApi
             {
                 app.UseSwagger();
                 app.UseSwaggerUI();
+                app.UseCors("AllowAngularApp");
             }
 
             // app.UseHttpsRedirection();
