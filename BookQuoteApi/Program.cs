@@ -81,9 +81,9 @@ namespace BookQuoteApi
             {
                 app.UseSwagger();
                 app.UseSwaggerUI();
-                app.UseCors("AllowAngularApp");
+                
             }
-
+            app.UseCors("AllowAngularApp");
             // app.UseHttpsRedirection();
 
             app.UseAuthentication();
