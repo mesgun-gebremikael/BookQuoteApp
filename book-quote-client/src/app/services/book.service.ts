@@ -26,4 +26,19 @@ export class BookService {
     const headers = this.getAuthHeaders();
     return this.http.get<Book[]>(this.apiUrl, { headers });
   }
+
+  createBook(book: Omit<Book, 'id'>): Observable<Book> {
+    const headers = this.getAuthHeaders();
+    return this.http.post<Book>(this.apiUrl, book, { headers });
+  }
+
+  updateBook(id: number, book: Omit<Book, 'id'>): Observable<Book> {
+    const headers = this.getAuthHeaders();
+    return this.http.put<Book>(`${this.apiUrl}/${id}`, book, { headers });
+  }
+
+  deleteBook(id: number): Observable<void> {
+    const headers = this.getAuthHeaders();
+    return this.http.delete<void>(`${this.apiUrl}/${id}`, { headers });
+  }
 }

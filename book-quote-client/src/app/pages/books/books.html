@@ -1,6 +1,57 @@
 <h1>Books</h1>
-<ul>
-  <li *ngFor="let book of books">
-    {{ book.title }} by {{ book.author }} ({{ book.publishedDate }})
-  </li>
-</ul>
+
+<p style="color: green;" *ngIf="successMessage">{{ successMessage }}</p>
+<p style="color: red;" *ngIf="errorMessage">{{ errorMessage }}</p>
+
+<button (click)="onAddNew()" *ngIf="!isFormVisible">Add New Book</button>
+
+<!-- Form for adding/editing a book -->
+<div *ngIf="isFormVisible" style="border: 1px solid #ccc; padding: 20px; margin: 20px 0;">
+  <h3>{{ isEditing ? 'Edit Book' : 'Add New Book' }}</h3>
+  <form>
+    <div>
+      <label>Title</label>
+      <input name="title" [(ngModel)]="formData.title" />
+    </div>
+
+    <div>
+      <label>Author</label>
+      <input name="author" [(ngModel)]="formData.author" />
+    </div>
+
+    <div>
+      <label>Published Date</label>
+      <input name="publishedDate" type="date" [(ngModel)]="formData.publishedDate" />
+    </div>
+
+    <button type="button" (click)="onSave()">Save</button>
+    <button type="button" (click)="onCancel()">Cancel</button>
+  </form>
+</div>
+
+<!-- Books table -->
+<div *ngIf="books.length > 0 && !isFormVisible">
+  <table border="1" cellpadding="10" cellspacing="0" style="width: 100%;">
+    <thead>
+      <tr>
+        <th>Title</th>
+        <th>Author</th>
+        <th>Published Date</th>
+        <th>Actions</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let book of books">
+        <td>{{ book.title }}</td>
+        <td>{{ book.author }}</td>
+        <td>{{ book.publishedDate }}</td>
+        <td>
+          <button (click)="onEdit(book)">Edit</button>
+          <button (click)="onDelete(book.id)">Delete</button>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
+<p *ngIf="books.length === 0 && !isFormVisible">No books found. <a href="javascript:void(0);" (click)="onAddNew()">Add one now!</a></p>
