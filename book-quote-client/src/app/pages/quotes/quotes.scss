@@ -1,1 +1,18 @@
-/* Quotes page styles */
+.quotes-page {
+  .card {
+    border-radius: 1rem;
+  }
+
+  .card-footer {
+    background-color: transparent;
+    border-top: 1px solid rgba(0, 0, 0, 0.08);
+  }
+
+  .blockquote {
+    font-size: 0.98rem;
+  }
+
+  .btn {
+    min-width: 100px;
+  }
+}

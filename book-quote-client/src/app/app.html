@@ -15,18 +15,19 @@
         </li>
       </ul>
       <div class="d-flex align-items-center gap-2">
-        <button class="btn btn-outline-secondary" type="button" (click)="toggleTheme()">
-          <i class="fas" [ngClass]="isDarkMode ? 'fa-sun' : 'fa-moon'"></i>
+        <button class="btn btn-outline-secondary d-flex align-items-center" type="button" (click)="toggleTheme()">
+          <i class="fas me-2" [ngClass]="isDarkMode ? 'fa-sun' : 'fa-moon'"></i>
+          {{ isDarkMode ? 'Light' : 'Dark' }}
         </button>
-        <button class="btn btn-outline-danger" type="button" (click)="onLogout()">
-          <i class="fas fa-sign-out-alt"></i> Logout
+        <button class="btn btn-outline-danger d-flex align-items-center" type="button" (click)="onLogout()">
+          <i class="fas fa-sign-out-alt me-2"></i> Logout
         </button>
       </div>
     </div>
   </div>
 </nav>
 
-<main class="min-vh-100 py-4" [ngClass]="{ 'bg-dark text-white': isDarkMode }">
+<main class="min-vh-100 py-4" [ngClass]="{ 'bg-dark text-white': isDarkMode, 'bg-light': !isDarkMode }">
   <div class="container">
     <router-outlet></router-outlet>
   </div>

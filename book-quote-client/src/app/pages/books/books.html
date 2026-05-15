@@ -1,57 +1,80 @@
-<h1>Books</h1>
-
-<p style="color: green;" *ngIf="successMessage">{{ successMessage }}</p>
-<p style="color: red;" *ngIf="errorMessage">{{ errorMessage }}</p>
-
-<button (click)="onAddNew()" *ngIf="!isFormVisible">Add New Book</button>
-
-<!-- Form for adding/editing a book -->
-<div *ngIf="isFormVisible" style="border: 1px solid #ccc; padding: 20px; margin: 20px 0;">
-  <h3>{{ isEditing ? 'Edit Book' : 'Add New Book' }}</h3>
-  <form>
+<div class="books-page container py-4">
+  <div class="d-flex flex-column flex-md-row justify-content-between align-items-start gap-3 mb-4">
     <div>
-      <label>Title</label>
-      <input name="title" [(ngModel)]="formData.title" />
+      <h1>Books</h1>
+      <p class="text-muted mb-0">Manage your book listings with create, edit, and delete actions.</p>
     </div>
+    <button class="btn btn-primary btn-lg" (click)="onAddNew()" *ngIf="!isFormVisible">
+      <i class="fas fa-plus me-2"></i> Add New Book
+    </button>
+  </div>
 
-    <div>
-      <label>Author</label>
-      <input name="author" [(ngModel)]="formData.author" />
+  <div *ngIf="successMessage" class="alert alert-success">{{ successMessage }}</div>
+  <div *ngIf="errorMessage" class="alert alert-danger">{{ errorMessage }}</div>
+
+  <div class="card mb-4" *ngIf="isFormVisible">
+    <div class="card-body">
+      <h5 class="card-title mb-3">{{ isEditing ? 'Edit Book' : 'Add New Book' }}</h5>
+      <form>
+        <div class="row g-3">
+          <div class="col-12 col-md-4">
+            <label class="form-label">Title</label>
+            <input class="form-control" name="title" [(ngModel)]="formData.title" />
+          </div>
+          <div class="col-12 col-md-4">
+            <label class="form-label">Author</label>
+            <input class="form-control" name="author" [(ngModel)]="formData.author" />
+          </div>
+          <div class="col-12 col-md-4">
+            <label class="form-label">Published Date</label>
+            <input class="form-control" name="publishedDate" type="date" [(ngModel)]="formData.publishedDate" />
+          </div>
+        </div>
+
+        <div class="mt-4 d-flex flex-wrap gap-2">
+          <button class="btn btn-success" type="button" (click)="onSave()">
+            <i class="fas fa-save me-2"></i> Save
+          </button>
+          <button class="btn btn-secondary" type="button" (click)="onCancel()">
+            <i class="fas fa-times me-2"></i> Cancel
+          </button>
+        </div>
+      </form>
     </div>
+  </div>
 
-    <div>
-      <label>Published Date</label>
-      <input name="publishedDate" type="date" [(ngModel)]="formData.publishedDate" />
-    </div>
+  <div class="table-responsive" *ngIf="books.length > 0 && !isFormVisible">
+    <table class="table table-hover align-middle">
+      <thead class="table-light">
+        <tr>
+          <th>Title</th>
+          <th>Author</th>
+          <th>Published Date</th>
+          <th class="text-end">Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let book of books">
+          <td>{{ book.title }}</td>
+          <td>{{ book.author }}</td>
+          <td>{{ book.publishedDate }}</td>
+          <td class="text-end">
+            <button class="btn btn-sm btn-outline-primary me-2 mb-2" (click)="onEdit(book)">
+              <i class="fas fa-edit"></i>
+            </button>
+            <button class="btn btn-sm btn-outline-danger mb-2" (click)="onDelete(book.id)">
+              <i class="fas fa-trash"></i>
+            </button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
 
-    <button type="button" (click)="onSave()">Save</button>
-    <button type="button" (click)="onCancel()">Cancel</button>
-  </form>
+  <div *ngIf="books.length === 0 && !isFormVisible" class="text-center py-5">
+    <p class="mb-3 text-muted">No books found yet.</p>
+    <button class="btn btn-outline-primary" (click)="onAddNew()">
+      <i class="fas fa-plus me-2"></i> Add your first book
+    </button>
+  </div>
 </div>
-
-<!-- Books table -->
-<div *ngIf="books.length > 0 && !isFormVisible">
-  <table border="1" cellpadding="10" cellspacing="0" style="width: 100%;">
-    <thead>
-      <tr>
-        <th>Title</th>
-        <th>Author</th>
-        <th>Published Date</th>
-        <th>Actions</th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr *ngFor="let book of books">
-        <td>{{ book.title }}</td>
-        <td>{{ book.author }}</td>
-        <td>{{ book.publishedDate }}</td>
-        <td>
-          <button (click)="onEdit(book)">Edit</button>
-          <button (click)="onDelete(book.id)">Delete</button>
-        </td>
-      </tr>
-    </tbody>
-  </table>
-</div>
-
-<p *ngIf="books.length === 0 && !isFormVisible">No books found. <a href="javascript:void(0);" (click)="onAddNew()">Add one now!</a></p>

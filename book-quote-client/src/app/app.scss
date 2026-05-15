@@ -7,7 +7,14 @@ body.dark-mode a {
   color: #9fcdff;
 }
 
-body.dark-mode .card {
+body.dark-mode .navbar {
+  background-color: #111827 !important;
+}
+
+body.dark-mode .card,
+body.dark-mode .card-body,
+body.dark-mode .card-header,
+body.dark-mode .card-footer {
   background-color: #161b22;
   border-color: #30363d;
 }
@@ -22,8 +29,42 @@ body.dark-mode .btn-outline-secondary:focus {
   background-color: #30363d;
 }
 
-body.dark-mode .form-control {
-  background-color: #010409;
+body.dark-mode .form-control,
+body.dark-mode .form-select,
+body.dark-mode .form-control:focus,
+body.dark-mode .form-select:focus {
+  background-color: #0d1117;
   color: #c9d1d9;
   border-color: #30363d;
+  box-shadow: none;
+}
+
+body.dark-mode .table {
+  color: #e6edf3;
+}
+
+body.dark-mode .table thead th {
+  color: #c9d1d9;
+}
+
+body.dark-mode .form-label,
+body.dark-mode .blockquote-footer,
+body.dark-mode .text-muted {
+  color: #9ca3af !important;
+}
+
+.card {
+  border-radius: 1rem;
+}
+
+.navbar .nav-link {
+  transition: color 0.15s ease;
+}
+
+.navbar .nav-link.active {
+  font-weight: 600;
+}
+
+.table-responsive {
+  overflow-x: auto;
 }
