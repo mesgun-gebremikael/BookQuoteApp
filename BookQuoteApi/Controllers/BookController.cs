@@ -3,6 +3,7 @@ using BookQuoteApi.Models;
 using BookQuoteApi.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using System.Security.Claims;
 
 namespace BookQuoteApi.Controllers
 {
@@ -18,16 +19,34 @@ namespace BookQuoteApi.Controllers
             _bookService = bookService;
         }
 
+        private int? GetCurrentUserId()
+        {
+            var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            return int.TryParse(userIdClaim, out var userId) ? userId : null;
+        }
+
         [HttpGet]
         public IActionResult GetAllBooks()
         {
-            return Ok(_bookService.GetAll());
+            var userId = GetCurrentUserId();
+            if (userId == null)
+            {
+                return Unauthorized();
+            }
+
+            return Ok(_bookService.GetAllForUser(userId.Value));
         }
 
         [HttpGet("{id}")]
         public IActionResult GetBookById(int id)
         {
-            var book = _bookService.GetById(id);
+            var userId = GetCurrentUserId();
+            if (userId == null)
+            {
+                return Unauthorized();
+            }
+
+            var book = _bookService.GetById(id, userId.Value);
 
             if (book == null)
             {
@@ -40,6 +59,12 @@ namespace BookQuoteApi.Controllers
         [HttpPost]
         public IActionResult AddBook(BookDto dto)
         {
+            var userId = GetCurrentUserId();
+            if (userId == null)
+            {
+                return Unauthorized();
+            }
+
             if (string.IsNullOrWhiteSpace(dto.Title))
             {
                 return BadRequest("Title is required.");
@@ -52,7 +77,7 @@ namespace BookQuoteApi.Controllers
                 PublishedDate = dto.PublishedDate
             };
 
-            var createdBook = _bookService.Add(book);
+            var createdBook = _bookService.Add(book, userId.Value);
 
             return Ok(createdBook);
         }
@@ -60,6 +85,12 @@ namespace BookQuoteApi.Controllers
         [HttpPut("{id}")]
         public IActionResult UpdateBook(int id, BookDto dto)
         {
+            var userId = GetCurrentUserId();
+            if (userId == null)
+            {
+                return Unauthorized();
+            }
+
             if (string.IsNullOrWhiteSpace(dto.Title))
             {
                 return BadRequest("Title is required.");
@@ -72,20 +103,26 @@ namespace BookQuoteApi.Controllers
                 PublishedDate = dto.PublishedDate
             };
 
-            var updated = _bookService.Update(id, updatedBook);
+            var updated = _bookService.Update(id, userId.Value, updatedBook);
 
             if (!updated)
             {
                 return NotFound("Book not found.");
             }
 
-            return Ok(_bookService.GetById(id));
+            return Ok(_bookService.GetById(id, userId.Value));
         }
 
         [HttpDelete("{id}")]
         public IActionResult DeleteBook(int id)
         {
-            var deleted = _bookService.Delete(id);
+            var userId = GetCurrentUserId();
+            if (userId == null)
+            {
+                return Unauthorized();
+            }
+
+            var deleted = _bookService.Delete(id, userId.Value);
 
             if (!deleted)
             {

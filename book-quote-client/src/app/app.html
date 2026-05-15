@@ -1,6 +1,6 @@
 <nav *ngIf="showNav" class="navbar navbar-expand-lg" [ngClass]="{ 'navbar-dark bg-dark': isDarkMode, 'navbar-light bg-white shadow-sm': !isDarkMode }">
   <div class="container">
-    <a class="navbar-brand fw-bold" routerLink="/books">RedRiver</a>
+    <a class="navbar-brand fw-bold" routerLink="/books" (click)="isNavbarCollapsed = true">RedRiver</a>
     <button class="navbar-toggler" type="button" (click)="toggleNavbar()" aria-label="Toggle navigation">
       <span class="navbar-toggler-icon"></span>
     </button>
@@ -8,10 +8,10 @@
     <div class="collapse navbar-collapse" [class.show]="!isNavbarCollapsed">
       <ul class="navbar-nav me-auto mb-2 mb-lg-0">
         <li class="nav-item">
-          <a class="nav-link" routerLink="/books" routerLinkActive="active">Books</a>
+          <a class="nav-link" routerLink="/books" routerLinkActive="active" (click)="isNavbarCollapsed = true">Books</a>
         </li>
         <li class="nav-item">
-          <a class="nav-link" routerLink="/quotes" routerLinkActive="active">My Quotes</a>
+          <a class="nav-link" routerLink="/quotes" routerLinkActive="active" (click)="isNavbarCollapsed = true">My Quotes</a>
         </li>
       </ul>
       <div class="d-flex align-items-center gap-2">

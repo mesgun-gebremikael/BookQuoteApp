@@ -1,6 +1,7 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { AuthService } from '../../services/auth.service';
 
 interface Quote {
   id: number;
@@ -27,24 +28,27 @@ export class Quotes implements OnInit {
   errorMessage = '';
   successMessage = '';
   nextId = 1;
+  private quoteStorageKey: string;
 
-  constructor() {}
+  constructor(private cd: ChangeDetectorRef, private authService: AuthService) {
+    this.quoteStorageKey = this.authService.getUserStorageKey('quotes');
+  }
 
   ngOnInit(): void {
     this.loadQuotes();
   }
 
   loadQuotes(): void {
-    // Load from localStorage for now
-    const stored = localStorage.getItem('quotes');
+    const stored = localStorage.getItem(this.quoteStorageKey);
     if (stored) {
       this.quotes = JSON.parse(stored);
       this.nextId = Math.max(...this.quotes.map(q => q.id), 0) + 1;
+      this.cd.detectChanges();
     }
   }
 
   saveQuotes(): void {
-    localStorage.setItem('quotes', JSON.stringify(this.quotes));
+    localStorage.setItem(this.quoteStorageKey, JSON.stringify(this.quotes));
   }
 
   onAddNew(): void {
@@ -78,6 +82,7 @@ export class Quotes implements OnInit {
       const index = this.quotes.findIndex(q => q.id === this.editingQuoteId);
       if (index !== -1) {
         this.quotes[index] = { ...this.quotes[index], ...this.formData };
+        this.errorMessage = '';
         this.successMessage = 'Quote updated successfully';
       }
     } else {
@@ -85,27 +90,36 @@ export class Quotes implements OnInit {
         id: this.nextId++,
         ...this.formData
       };
-      this.quotes.push(newQuote);
+      this.quotes = [newQuote, ...this.quotes];
+      this.errorMessage = '';
       this.successMessage = 'Quote created successfully';
     }
     this.saveQuotes();
-    this.onCancel();
+    this.resetForm();
+    this.cd.detectChanges();
   }
 
-  onCancel(): void {
+  resetForm(): void {
     this.isFormVisible = false;
     this.isEditing = false;
     this.editingQuoteId = null;
     this.formData = { text: '', author: '' };
+  }
+
+  onCancel(): void {
+    this.resetForm();
     this.errorMessage = '';
     this.successMessage = '';
   }
 
   onDelete(id: number): void {
-    if (confirm('Are you sure you want to delete this quote?')) {
-      this.quotes = this.quotes.filter(q => q.id !== id);
-      this.saveQuotes();
-      this.successMessage = 'Quote deleted successfully';
+    if (!confirm('Are you sure you want to delete this quote?')) {
+      return;
     }
+    this.quotes = this.quotes.filter(q => q.id !== id);
+    this.saveQuotes();
+    this.errorMessage = '';
+    this.successMessage = 'Quote deleted successfully';
+    this.cd.detectChanges();
   }
 }

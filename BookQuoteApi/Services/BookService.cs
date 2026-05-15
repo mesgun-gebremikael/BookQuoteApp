@@ -6,28 +6,29 @@ namespace BookQuoteApi.Services
     {
         private readonly List<Book> _books = new();
 
-        public List<Book> GetAll()
+        public List<Book> GetAllForUser(int ownerId)
         {
-            return _books;
+            return _books.Where(b => b.OwnerId == ownerId).ToList();
         }
 
-        public Book? GetById(int id)
+        public Book? GetById(int id, int ownerId)
         {
-            return _books.FirstOrDefault(b => b.Id == id);
+            return _books.FirstOrDefault(b => b.Id == id && b.OwnerId == ownerId);
         }
 
-        public Book Add(Book book)
+        public Book Add(Book book, int ownerId)
         {
             book.Id = _books.Count + 1;
+            book.OwnerId = ownerId;
 
             _books.Add(book);
 
             return book;
         }
 
-        public bool Delete(int id)
+        public bool Delete(int id, int ownerId)
         {
-            var book = GetById(id);
+            var book = GetById(id, ownerId);
 
             if (book == null)
             {
@@ -39,9 +40,9 @@ namespace BookQuoteApi.Services
             return true;
         }
 
-        public bool Update(int id, Book updatedBook)
+        public bool Update(int id, int ownerId, Book updatedBook)
         {
-            var book = GetById(id);
+            var book = GetById(id, ownerId);
 
             if (book == null)
             {

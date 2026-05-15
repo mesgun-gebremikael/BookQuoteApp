@@ -36,6 +36,42 @@ export class AuthService {
     return localStorage.getItem('token');
   }
 
+  private decodeToken(): any | null {
+    const token = this.getToken();
+    if (!token) {
+      return null;
+    }
+
+    const payload = token.split('.')[1];
+    if (!payload) {
+      return null;
+    }
+
+    try {
+      return JSON.parse(atob(payload));
+    } catch {
+      return null;
+    }
+  }
+
+  getUserId(): number | null {
+    const decoded = this.decodeToken();
+    const idValue = decoded?.nameid || decoded?.sub;
+    const id = Number(idValue);
+    return Number.isInteger(id) ? id : null;
+  }
+
+  getUsername(): string | null {
+    const decoded = this.decodeToken();
+    return decoded?.unique_name || decoded?.name || null;
+  }
+
+  getUserStorageKey(prefix: string): string {
+    const userId = this.getUserId();
+    const username = this.getUsername() || 'guest';
+    return `${prefix}_${userId ?? 'guest'}_${username}`;
+  }
+
   isLoggedIn(): boolean {
     return !!this.getToken();
   }

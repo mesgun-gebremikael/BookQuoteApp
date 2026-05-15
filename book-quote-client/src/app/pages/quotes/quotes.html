@@ -4,7 +4,7 @@
       <h1>My Quotes</h1>
       <p class="text-muted mb-0">Add, edit and delete quotes with a clean card layout.</p>
     </div>
-    <button class="btn btn-primary btn-lg" (click)="onAddNew()" *ngIf="!isFormVisible">
+    <button type="button" class="btn btn-primary btn-lg" (click)="onAddNew()" *ngIf="!isFormVisible">
       <i class="fas fa-plus me-2"></i> Add New Quote
     </button>
   </div>
@@ -45,10 +45,10 @@
             <footer class="blockquote-footer">{{ quote.author }}</footer>
           </blockquote>
           <div class="d-flex justify-content-end gap-2">
-            <button class="btn btn-sm btn-outline-primary" (click)="onEdit(quote)">
+            <button type="button" class="btn btn-sm btn-outline-primary" (click)="onEdit(quote)">
               <i class="fas fa-edit"></i>
             </button>
-            <button class="btn btn-sm btn-outline-danger" (click)="onDelete(quote.id)">
+            <button type="button" class="btn btn-sm btn-outline-danger" (click)="onDelete(quote.id)">
               <i class="fas fa-trash"></i>
             </button>
           </div>
@@ -59,7 +59,7 @@
 
   <div *ngIf="quotes.length === 0 && !isFormVisible" class="text-center py-5">
     <p class="mb-3 text-muted">No quotes yet.</p>
-    <button class="btn btn-outline-primary" (click)="onAddNew()">
+    <button type="button" class="btn btn-outline-primary" (click)="onAddNew()">
       <i class="fas fa-plus me-2"></i> Add a quote
     </button>
   </div>

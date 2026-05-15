@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
-import { Observable } from 'rxjs';
+import { Observable, mapTo } from 'rxjs';
 import { Book } from '../models/book';
 import { AuthService } from './auth.service';
 
@@ -39,6 +39,9 @@ export class BookService {
 
   deleteBook(id: number): Observable<void> {
     const headers = this.getAuthHeaders();
-    return this.http.delete<void>(`${this.apiUrl}/${id}`, { headers });
+    return this.http.delete(`${this.apiUrl}/${id}`, {
+      headers,
+      responseType: 'text'
+    }).pipe(mapTo(void 0));
   }
 }

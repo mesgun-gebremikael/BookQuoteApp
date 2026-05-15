@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { BookService } from '../../services/book.service';
@@ -24,16 +24,19 @@ export class Books implements OnInit {
   errorMessage = '';
   successMessage = '';
 
-  constructor(private bookService: BookService) {}
+  constructor(private bookService: BookService, private cd: ChangeDetectorRef) {}
 
   ngOnInit(): void {
     this.loadBooks();
   }
 
   loadBooks(): void {
+    this.errorMessage = '';
     this.bookService.getBooks().subscribe({
       next: (books) => {
         this.books = books;
+        this.errorMessage = '';
+        this.cd.detectChanges();
       },
       error: () => {
         this.errorMessage = 'Failed to load books';
@@ -71,9 +74,14 @@ export class Books implements OnInit {
 
     if (this.isEditing && this.editingBookId !== null) {
       this.bookService.updateBook(this.editingBookId, this.formData).subscribe({
-        next: () => {
+        next: (updated) => {
+          const idx = this.books.findIndex(b => b.id === this.editingBookId);
+          if (idx !== -1) {
+            this.books[idx] = updated;
+          }
+          this.errorMessage = '';
           this.successMessage = 'Book updated successfully';
-          this.onCancel();
+          this.resetForm();
           this.loadBooks();
         },
         error: () => {
@@ -82,9 +90,11 @@ export class Books implements OnInit {
       });
     } else {
       this.bookService.createBook(this.formData).subscribe({
-        next: () => {
+        next: (created) => {
+          this.books = [created, ...this.books];
+          this.errorMessage = '';
           this.successMessage = 'Book created successfully';
-          this.onCancel();
+          this.resetForm();
           this.loadBooks();
         },
         error: () => {
@@ -94,26 +104,35 @@ export class Books implements OnInit {
     }
   }
 
-  onCancel(): void {
+  resetForm(): void {
     this.isFormVisible = false;
     this.isEditing = false;
     this.editingBookId = null;
     this.formData = { title: '', author: '', publishedDate: '' };
+  }
+
+  onCancel(): void {
+    this.resetForm();
     this.errorMessage = '';
     this.successMessage = '';
   }
 
   onDelete(id: number): void {
-    if (confirm('Are you sure you want to delete this book?')) {
-      this.bookService.deleteBook(id).subscribe({
-        next: () => {
-          this.successMessage = 'Book deleted successfully';
-          this.loadBooks();
-        },
-        error: () => {
-          this.errorMessage = 'Failed to delete book';
-        }
-      });
+    if (!confirm('Are you sure you want to delete this book?')) {
+      return;
     }
+
+    this.errorMessage = '';
+
+    this.bookService.deleteBook(id).subscribe({
+      next: () => {
+        this.books = this.books.filter(b => b.id !== id);
+        this.successMessage = 'Book deleted successfully';
+        this.cd.detectChanges();
+      },
+      error: () => {
+        this.errorMessage = 'Failed to delete book';
+      }
+    });
   }
 }
