@@ -2,7 +2,7 @@ import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
-import { finalize } from 'rxjs';
+import { finalize, timeout } from 'rxjs';
 import { AuthService } from '../../services/auth.service';
 
 @Component({
@@ -26,6 +26,10 @@ export class Register {
   ) {}
 
   register(): void {
+    if (this.isLoading) {
+      return;
+    }
+
     this.errorMessage = '';
     this.successMessage = '';
 
@@ -77,6 +81,7 @@ export class Register {
     this.isLoading = true;
     this.authService.register(this.username, this.password, this.confirmPassword)
       .pipe(
+        timeout(8000),
         finalize(() => {
           this.isLoading = false;
         })
@@ -87,6 +92,11 @@ export class Register {
           this.router.navigate(['/login']);
         },
         error: (err) => {
+          if (err?.name === 'TimeoutError') {
+            this.errorMessage = 'Server is not responding. Please try again.';
+            return;
+          }
+
           this.errorMessage = this.extractErrorMessage(err) || 'Registration failed. Check your username and password.';
         }
       });

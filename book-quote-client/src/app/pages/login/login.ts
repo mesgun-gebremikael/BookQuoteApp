@@ -2,7 +2,7 @@ import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
-import { finalize } from 'rxjs';
+import { finalize, timeout } from 'rxjs/operators';
 import { AuthService } from '../../services/auth.service';
 
 @Component({
@@ -24,6 +24,10 @@ export class Login {
   ) {}
 
   login(): void {
+    if (this.isLoading) {
+      return;
+    }
+
     this.errorMessage = '';
 
     if (!this.username || !this.username.trim() || !this.password) {
@@ -34,6 +38,7 @@ export class Login {
     this.isLoading = true;
     this.authService.login(this.username, this.password)
       .pipe(
+        timeout(8000),
         finalize(() => {
           this.isLoading = false;
         })
@@ -44,7 +49,17 @@ export class Login {
           this.router.navigate(['/books']);
         },
         error: (err) => {
-          this.errorMessage = this.extractErrorMessage(err) || 'Wrong username or password.';
+          if (err?.name === 'TimeoutError') {
+            this.errorMessage = 'Server is not responding. Please try again.';
+            return;
+          }
+
+          if (err?.status === 401 || err?.status === 400) {
+            this.errorMessage = 'Invalid username or password.';
+            return;
+          }
+
+          this.errorMessage = this.extractErrorMessage(err) || 'Invalid username or password.';
         }
       });
   }
