@@ -22,8 +22,9 @@
           <input class="form-control" name="confirmPassword" type="password" [(ngModel)]="confirmPassword" />
         </div>
 
-        <button class="btn btn-success w-100" type="submit">
-          <i class="fas fa-user-plus me-2"></i> Register
+        <button class="btn btn-success w-100" type="submit" [disabled]="isLoading">
+          <i class="fas fa-user-plus me-2"></i>
+          {{ isLoading ? 'Registering...' : 'Register' }}
         </button>
       </form>
 

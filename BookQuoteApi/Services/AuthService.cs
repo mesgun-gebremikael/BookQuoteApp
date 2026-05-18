@@ -13,6 +13,12 @@ namespace BookQuoteApi.Services
 
         public User Register(string username, string password)
         {
+            // Ensure username uniqueness
+            if (_users.Any(u => u.Username.Equals(username, StringComparison.OrdinalIgnoreCase)))
+            {
+                throw new ArgumentException("Username already exists.");
+            }
+
             var user = new User
             {
                 Id = _users.Count + 1,
@@ -23,6 +29,11 @@ namespace BookQuoteApi.Services
             _users.Add(user);
 
             return user;
+        }
+
+        public bool UsernameExists(string username)
+        {
+            return _users.Any(u => u.Username.Equals(username, StringComparison.OrdinalIgnoreCase));
         }
 
         public string? Login(string username, string password)

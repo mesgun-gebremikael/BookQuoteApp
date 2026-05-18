@@ -23,6 +23,13 @@ namespace BookQuoteApi.Services
 
             _books.Add(book);
 
+            // Debug output for tracing ownership assignment
+            try
+            {
+                Console.WriteLine($"[DEBUG] Book added: Id={book.Id}, OwnerId={book.OwnerId}, Title={book.Title}");
+            }
+            catch { }
+
             return book;
         }
 

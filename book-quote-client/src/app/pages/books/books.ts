@@ -1,7 +1,9 @@
-import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
+import { Component, OnInit, OnDestroy, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { Subject, takeUntil } from 'rxjs';
 import { BookService } from '../../services/book.service';
+import { AuthService } from '../../services/auth.service';
 import { Book } from '../../models/book';
 
 @Component({
@@ -11,7 +13,7 @@ import { Book } from '../../models/book';
   templateUrl: './books.html',
   styleUrls: ['./books.scss']
 })
-export class Books implements OnInit {
+export class Books implements OnInit, OnDestroy {
   books: Book[] = [];
   isFormVisible = false;
   isEditing = false;
@@ -24,14 +26,37 @@ export class Books implements OnInit {
   errorMessage = '';
   successMessage = '';
 
-  constructor(private bookService: BookService, private cd: ChangeDetectorRef) {}
+  private destroy$ = new Subject<void>();
+
+  constructor(
+    private bookService: BookService,
+    private authService: AuthService,
+    private cd: ChangeDetectorRef
+  ) {}
 
   ngOnInit(): void {
     this.loadBooks();
+
+    this.authService.authChanges$
+      .pipe(takeUntil(this.destroy$))
+      .subscribe((isLoggedIn) => {
+        if (!isLoggedIn) {
+          this.books = [];
+          this.resetForm();
+          this.errorMessage = '';
+          this.successMessage = '';
+          this.cd.detectChanges();
+          return;
+        }
+
+        this.loadBooks();
+      });
   }
 
   loadBooks(): void {
+    this.books = [];
     this.errorMessage = '';
+
     this.bookService.getBooks().subscribe({
       next: (books) => {
         this.books = books;
@@ -39,6 +64,7 @@ export class Books implements OnInit {
         this.cd.detectChanges();
       },
       error: () => {
+        this.books = [];
         this.errorMessage = 'Failed to load books';
       }
     });
@@ -134,5 +160,10 @@ export class Books implements OnInit {
         this.errorMessage = 'Failed to delete book';
       }
     });
+  }
+
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
   }
 }

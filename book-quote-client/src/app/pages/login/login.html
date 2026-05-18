@@ -16,8 +16,9 @@
           <input class="form-control" name="password" type="password" [(ngModel)]="password" />
         </div>
 
-        <button class="btn btn-primary w-100" type="submit">
-          <i class="fas fa-sign-in-alt me-2"></i> Login
+        <button class="btn btn-primary w-100" type="submit" [disabled]="isLoading">
+          <i class="fas fa-sign-in-alt me-2"></i>
+          {{ isLoading ? 'Signing in...' : 'Login' }}
         </button>
       </form>
 

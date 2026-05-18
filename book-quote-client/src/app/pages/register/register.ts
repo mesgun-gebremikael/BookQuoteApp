@@ -2,6 +2,7 @@ import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
+import { finalize } from 'rxjs';
 import { AuthService } from '../../services/auth.service';
 
 @Component({
@@ -17,6 +18,7 @@ export class Register {
   confirmPassword = '';
   errorMessage = '';
   successMessage = '';
+  isLoading = false;
 
   constructor(
     private authService: AuthService,
@@ -27,19 +29,52 @@ export class Register {
     this.errorMessage = '';
     this.successMessage = '';
 
+    if (!this.username || !this.password || !this.confirmPassword) {
+      this.errorMessage = 'Please fill in all fields.';
+      return;
+    }
+
     if (this.password !== this.confirmPassword) {
       this.errorMessage = 'Passwords do not match.';
       return;
     }
 
-    this.authService.register(this.username, this.password).subscribe({
-      next: () => {
-        this.successMessage = 'Registration successful. Please login.';
-        this.router.navigate(['/login']);
-      },
-      error: () => {
-        this.errorMessage = 'Registration failed. Check your username and password.';
-      }
-    });
+    this.isLoading = true;
+    this.authService.register(this.username, this.password, this.confirmPassword)
+      .pipe(
+        finalize(() => {
+          this.isLoading = false;
+        })
+      )
+      .subscribe({
+        next: () => {
+          this.successMessage = 'Registration successful. Please login.';
+          this.router.navigate(['/login']);
+        },
+        error: (err) => {
+          this.errorMessage = this.extractErrorMessage(err) || 'Registration failed. Check your username and password.';
+        }
+      });
+  }
+
+  private extractErrorMessage(error: any): string {
+    if (!error) {
+      return '';
+    }
+
+    if (error.error?.message) {
+      return error.error.message;
+    }
+
+    if (error.error?.errors) {
+      const values = Object.values(error.error.errors).flat();
+      return values.filter(Boolean).join(' ');
+    }
+
+    if (typeof error.error === 'string') {
+      return error.error;
+    }
+
+    return error.message || error.statusText || '';
   }
 }

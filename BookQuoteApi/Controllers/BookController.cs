@@ -21,7 +21,20 @@ namespace BookQuoteApi.Controllers
 
         private int? GetCurrentUserId()
         {
+            // Log all incoming claims for debugging
+            try
+            {
+                Console.WriteLine("[DEBUG] Current user claims:");
+                foreach (var c in User.Claims)
+                {
+                    Console.WriteLine($"[DEBUG] Claim: {c.Type} = {c.Value}");
+                }
+            }
+            catch { }
+
             var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            Console.WriteLine($"[DEBUG] Parsed NameIdentifier claim value: {userIdClaim}");
+
             return int.TryParse(userIdClaim, out var userId) ? userId : null;
         }
 
