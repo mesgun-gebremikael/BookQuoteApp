@@ -28,13 +28,12 @@ export class Quotes implements OnInit {
   errorMessage = '';
   successMessage = '';
   nextId = 1;
-  private quoteStorageKey: string;
+  private quoteStorageKey = '';
 
-  constructor(private cd: ChangeDetectorRef, private authService: AuthService) {
-    this.quoteStorageKey = this.authService.getUserStorageKey('quotes');
-  }
+  constructor(private cd: ChangeDetectorRef, private authService: AuthService) {}
 
   ngOnInit(): void {
+    this.quoteStorageKey = this.authService.getUserStorageKey('quotes');
     this.loadQuotes();
   }
 

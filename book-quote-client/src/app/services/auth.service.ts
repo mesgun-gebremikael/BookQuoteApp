@@ -56,14 +56,25 @@ export class AuthService {
 
   getUserId(): number | null {
     const decoded = this.decodeToken();
-    const idValue = decoded?.nameid || decoded?.sub;
+    const idValue =
+      decoded?.nameid ||
+      decoded?.sub ||
+      decoded?.id ||
+      decoded?.['http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier'];
+
     const id = Number(idValue);
     return Number.isInteger(id) ? id : null;
   }
 
   getUsername(): string | null {
     const decoded = this.decodeToken();
-    return decoded?.unique_name || decoded?.name || null;
+    return (
+      decoded?.unique_name ||
+      decoded?.name ||
+      decoded?.preferred_username ||
+      decoded?.['http://schemas.xmlsoap.org/ws/2005/05/identity/claims/name'] ||
+      null
+    );
   }
 
   getUserStorageKey(prefix: string): string {
