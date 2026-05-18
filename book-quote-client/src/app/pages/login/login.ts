@@ -26,7 +26,7 @@ export class Login {
   login(): void {
     this.errorMessage = '';
 
-    if (!this.username || !this.password) {
+    if (!this.username || !this.username.trim() || !this.password) {
       this.errorMessage = 'Please enter both username and password.';
       return;
     }
