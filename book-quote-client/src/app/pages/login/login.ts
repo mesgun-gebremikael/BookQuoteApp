@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
@@ -20,7 +20,8 @@ export class Login {
 
   constructor(
     private authService: AuthService,
-    private router: Router
+    private router: Router,
+    private cdr: ChangeDetectorRef
   ) {}
 
   login(): void {
@@ -41,6 +42,7 @@ export class Login {
         timeout(8000),
         finalize(() => {
           this.isLoading = false;
+          this.cdr.detectChanges();
         })
       )
       .subscribe({
@@ -51,15 +53,12 @@ export class Login {
         error: (err) => {
           if (err?.name === 'TimeoutError') {
             this.errorMessage = 'Server is not responding. Please try again.';
-            return;
-          }
-
-          if (err?.status === 401 || err?.status === 400) {
+          } else if (err?.status === 401 || err?.status === 400) {
             this.errorMessage = 'Invalid username or password.';
-            return;
+          } else {
+            this.errorMessage = this.extractErrorMessage(err) || 'Invalid username or password.';
           }
-
-          this.errorMessage = this.extractErrorMessage(err) || 'Invalid username or password.';
+          this.cdr.detectChanges();
         }
       });
   }
