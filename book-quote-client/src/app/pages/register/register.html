@@ -15,11 +15,24 @@
         <div class="mb-3">
           <label class="form-label">Password</label>
           <input class="form-control" name="password" type="password" [(ngModel)]="password" />
+          <div class="form-text small text-muted mt-2">
+            Your password must include:
+            <ul class="mb-0 ps-3">
+              <li>At least 8 characters</li>
+              <li>One uppercase letter</li>
+              <li>One lowercase letter</li>
+              <li>One number</li>
+              <li>One special character</li>
+            </ul>
+          </div>
         </div>
 
         <div class="mb-3">
           <label class="form-label">Confirm Password</label>
           <input class="form-control" name="confirmPassword" type="password" [(ngModel)]="confirmPassword" />
+          <div *ngIf="password && confirmPassword && password !== confirmPassword" class="form-text text-danger small mt-2">
+            Passwords do not match.
+          </div>
         </div>
 
         <button class="btn btn-success w-100" type="submit" [disabled]="isLoading">
