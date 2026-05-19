@@ -13,7 +13,7 @@ namespace BookQuoteApi
         {
             var builder = WebApplication.CreateBuilder(args);
 
-            var jwtKey = "ThisIsASecretKeyForJwtToken12345";
+            var jwtKey = builder.Configuration["JwtSettings:Key"];
 
             builder.Services.AddControllers();
             builder.Services.AddEndpointsApiExplorer();
